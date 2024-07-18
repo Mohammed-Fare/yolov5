@@ -1,0 +1,48 @@
+import cv2
+from ultralytics import YOLO
+import numpy as np
+from sklearn.model_selection import train_test_split
+
+# Load the YOLOv8 model (Ensure you have the trained model available)
+model = YOLO('path_to_your_trained_model/best.pt')
+
+# Function to preprocess the image
+def preprocess_image(image_path):
+    # Load the image
+    image = cv2.imread(image_path)
+    return image
+
+# Function to perform applet detection
+def detect_applets(image):
+    results = model(image)
+    return results
+
+# Function to process detection results
+def process_results(results, image):
+    num_applets = len(results[0].boxes)
+    print(f'Number of detected applets: {num_applets}')
+
+    for result in results:
+        boxes = result.boxes.xyxy  # Get the bounding boxes
+        for box in boxes:
+            x1, y1, x2, y2 = box
+            cv2.rectangle(image, (int(x1), int(y1)), (int(x2), int(y2)), (255, 0, 0), 2)
+
+    return image, num_applets
+
+# Path to the input image
+image_path = '/mnt/data/Img 1.jpg'
+
+# Preprocess the image
+image = preprocess_image(image_path)
+
+# Detect applets in the image
+results = detect_applets(image)
+
+# Process the results and get the annotated image
+annotated_image, num_applets = process_results(results, image)
+
+# Display the annotated image
+cv2.imshow('Applet Detection', annotated_image)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
